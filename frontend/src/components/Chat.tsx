@@ -1,10 +1,33 @@
 import type { Message } from "../types";
+import { type JSX } from "react";
 
 interface ChatProps {
   message: Message;
 }
 
+function linkify(text: string): JSX.Element[] {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, index) =>
+    urlRegex.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-500 underline"
+      >
+        {part}
+      </a>
+    ) : (
+      <span key={index}>{part}</span>
+    )
+  );
+}
+
 const Chat = ({ message }: ChatProps) => {
+  const cleanedMessage = message.message.replace(/^(?:\r?\n)+|(?:\r?\n)+$/g, "");
+
   return (
     <div
       className={`chat ${
@@ -24,7 +47,7 @@ const Chat = ({ message }: ChatProps) => {
         }`}
       >
         <div className="m-2 whitespace-pre-line">
-          {message.message.replace(/^(?:\r?\n)+|(?:\r?\n)+$/g, "")}
+          {message.sender === "Bot" ? linkify(cleanedMessage) : cleanedMessage}
         </div>
       </div>
     </div>
